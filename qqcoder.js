@@ -1,17 +1,44 @@
+/* @flow */
 'use strict'
 
 var fs = require('fs')
 var assert = require('assert')
 var _ = require('lodash')
 
+function _parseMachineTypeTransitionSpec(machineTypeTransitionSpec) {
 
-function machineClassFromSpec(machineTypeSpec, machineTypeName) {
+    var transitions = {'epsilon': {}}
+    var acceptingStates = {}
 
-    return function(name) {
+    var wordR = /^[A-Za-z0-9$_]+$/;
+
+    machineTypeTransitionSpec.trim().split(/(?: *, *\n? *)|(?: *\n *)/).forEach(function (line) {console.log(line)
+        var lastWordOfLine =
+            line.trim().split(' ').reduce(
+                function (from, to) {
+                    if (!wordR.test(from)) throw new SyntaxError('invalid machine type transition spec line: ' + line)
+                    transitions[from] = transitions[from] || {}
+                    transitions[from][to] = true
+                    return to
+                })
+        if (!wordR.test(lastWordOfLine)) throw new SyntaxError('invalid machine type transition spec line: ' + line) //
+        acceptingStates[lastWordOfLine] = true
+    })
+
+    return {transitions: transitions, acceptingStates: acceptingStates}
+}
+
+function machineTypeFromSpec(machineTypeTransitionSpec, machineTypeName) {
+
+    return function (name) {
         this.name = name
         this.type = machineTypeName
         this.state = 'epsilon'
-        this.transitions = transitionsFromSpec(machineTypeSpec)
+
+        var ret = _parseMachineTypeTransitionSpec(machineTypeTransitionSpec)
+
+        this.transitions = ret.transitions
+        this.acceptingStates = ret.acceptingStates
 
         this.prototype.transition = function (newState) {
             if (this.transitions[this.state][newState])
@@ -20,48 +47,19 @@ function machineClassFromSpec(machineTypeSpec, machineTypeName) {
         }
 
         this.prototype.okToEndHere = function () {
-            return true
+            return !! this.acceptingStates[this.state]
         }
     }
 }
 
-function transitionsFromSpec(machineTypeSpec) {
-
-    var lineR = /[^,\n]+,?/g;
-    var tailCrudR = /\S/g;
-
-    var transitions = {'epsilon': {}}
-
-    var match = lineR.exec(machineTypeSpec)
-    if (match.index !== 0) throw new SyntaxError('invalid machineType spec')
-    do {
-
-        var words = match[0].trim().split(' ')
-
-        for (var i = 0; i < words.length - 1; i++) {
-            if (! /^[A-Za-z0-9$_]+$/.test(words[i])) throw new SyntaxError('invalid machineType spec')
-            transitions[words[i]][words[i+1]] = true
-        }
-        if (! /^[A-Za-z0-9$_]+$/.test(words[i])) throw new SyntaxError('invalid machineType spec')
-        transitions[words[i]] = transitions[words[i]] || {}
-
-    } while (match = lineR.exec(machineTypeSpec))
-    tailCrudR.lastIndex = lineR.lastIndex
-    if (tailCrudR.test(machineTypeSpec)) throw new SyntaxError('invalid machineType spec')
-
-    return transitions
-}
-
-
 function Language(options) {
-    this.machineTypes = _.mapValues(options.machineTypes, function (value, key) {return new machineClassFromSpec(value, key)})
+    this.machineTypes = _.mapValues(options.machineTypes, function (value, key) {return new machineTypeFromSpec(value, key)})
 }
 
 function Renderer(options) {
-    assert(this.language = options.language)
-    assert(this.transformerLanguageMatch = options.transformerLanguageMatch)
-    assert(this.chunkRenderer = options.chunkRenderer)
-    this.machines = _.mapValues(this.language.machineTypes, function () {return {}})
+    assert.ok(this.language = options.language)
+    assert.ok(this.chunkRenderer = options.chunkRenderer)
+    this.machinesByType = _.mapValues(this.language.machineTypes, function () {return {}})
 }
 
 Renderer.testRenderer = function (chunks, idx) {
@@ -73,7 +71,7 @@ Renderer.testRenderer = function (chunks, idx) {
 }
 
 Renderer.prototype.renderFileSync = function(options) {
-    fs.writeFileSync(options.dst, this.stringFromChunks(chunksFromString(fs.readFileSync(options.src))))
+    fs.writeFileSync(options.dst, this.stringFromChunks(chunksFromString(fs.readFileSync(options.src)), {encoding: 'utf8'}))
 }
 
 Renderer.prototype.stringFromChunks = function (chunks) {
@@ -83,18 +81,21 @@ Renderer.prototype.stringFromChunks = function (chunks) {
 Renderer.prototype.stringsFromChunks = function (chunks) {
 
     var strings = []
+    var machineType
 
-    assert(chunks.length % 2 === 1)
+    assert.ok(chunks.length % 2 === 1)
 
     if (chunks.length === 1) {
-        // TODO: verify that the language doesn't require any transitions
+        for (machineType in this.transitions)
+            if (! this.language.machineTypes[machineType].acceptingStates.epsilon)
+                throw new SyntaxError('Machine of type ' + machineType + ' cannot finish in state epsilon.')
         return chunks[0].match
     }
 
     for (var i = 1; i < chunks.length; i += 2) {
 
-        assert(chunks[i-1].type === 'plain')
-        assert(chunks[i].type === 'fancy')
+        assert.ok(chunks[i-1].type === 'plain')
+        assert.ok(chunks[i].type === 'fancy')
 
         var t = chunks[i].transition
 
@@ -111,7 +112,7 @@ Renderer.prototype.stringsFromChunks = function (chunks) {
     }
     if (!strings[i-1]) strings[i-1] = chunks[i-1].match
 
-    for (var machineType in this.machinesByType) {
+    for (machineType in this.machinesByType) {
         for (var machine in this.machinesByType[machineType]) {
             var m = this.machinesByType[machineType][machine]
             if (!m.okToEndHere) throw new SyntaxError('attempt to finish with machine ' + m.type + '(' + m.name + ') in state ' + m.state)
@@ -150,11 +151,11 @@ function chunksFromString(src) {
     var chunks = []
 
     // Matches anything up to a line beginning with '*' or the end of `src`.
-    var plainR = /^.*?(?=$|^\*)/g;
+    var plainR = /.*?(?=$|^\*)/g;
 
     // Matches a line beginning with '*' plus any following lines
     // until there is a blank line or the end of `src`.
-    var fancyR = /^(\*[^\n]*?)(?:$|\n)(.*?)($|\n\s*?\n)/g;
+    var fancyR = /(\*[^\n]*?)(?:$|\n)(.*?)($|\n\s*?\n)/g;
 
     // Matches lines like '*foo(bar)->baz', where `foo`, `bar`,
     // and `baz` are sequences of letters, numbers, '_', and '$'. If
@@ -183,8 +184,8 @@ function chunksFromString(src) {
 
         fancyR.lastIndex = plainR.lastIndex
 
-        assert(match = fancyR.exec(src))
-        assert(tMatch = fancy$transitionR.exec(match[1]))
+        assert.ok(match = fancyR.exec(src))
+        assert.ok(tMatch = fancy$transitionR.exec(match[1]))
 
         keyValuePairs = {}
         while (kvMatch = fancy$keyValueR.exec(match[2]))
@@ -220,13 +221,19 @@ function chunksFromString(src) {
     }
 
     if (process.env.NODE_ENV !== 'production') {
-        assert(chunks[0].start === 0)
+        assert.ok(chunks[0].start === 0)
         for (var i = 0; i < chunks.length; i++) {
-            assert(chunks[i].end === chunks[i+1].start)
-            assert(chunks[i].match === src.substring(chunks[i].start, chunks[i].end))
+            assert.ok(chunks[i].end === chunks[i+1].start)
+            assert.ok(chunks[i].match === src.substring(chunks[i].start, chunks[i].end))
         }
-        assert(chunks[i].end === src.length)
+        assert.ok(chunks[i].end === src.length)
     }
 
     return chunks
+}
+
+module.exports = {
+    Language: Language
+    , Renderer: Renderer
+    , _parseMachineTypeTransitionSpec: _parseMachineTypeTransitionSpec
 }

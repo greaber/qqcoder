@@ -1,0 +1,24 @@
+// Defaults and explanations of options are at
+// https://github.com/jshint/jshint/blob/master/examples/.jshintrc
+// and http://jshint.com/docs/options/
+// This file only contains settings that differ from the defaults.
+{     
+    // Let jshint know about things defined by our host environment:
+    "browser"       : true
+    , "node"        : true
+    , "mocha"       : true
+
+    // In the following settings, "false" means "don't enforce":
+    , "bitwise"     : false
+    , "curly"       : false
+    , "newcap"      : true
+    , "unused"      : true
+
+    // In the following settings, "true" means "don't enforce":
+    , "asi"         : true
+    , "boss"        : true
+    , "esnext"      : true
+    , "lastsemic"   : true
+    , "laxbreak"    : true
+    , "laxcomma"    : true 
+}
