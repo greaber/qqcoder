@@ -3,7 +3,7 @@
 var should = require('chai').should()
 var _ = require('lodash')
 
-var machines = require('../lib/machines')
+var machines = require('../../lib/machines')
 
 
 

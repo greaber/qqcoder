@@ -1,0 +1,22 @@
+format: source, prematch, chunkTest
+
+==========
+qq t n s
+ a b
+a b
+
+zzz
+====
+====
+qq t n s
+ a b
+a b
+
+==========
+foo
+qq t1 n1 s1
+qq t2 n2 s2====
+
+====
+qq t1 n1 s1
+qq t2 n2 s2==========

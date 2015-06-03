@@ -1,0 +1,74 @@
+format: source, character position, origin states (JSON), return value (JSON)
+
+
+==========
+qq t n s
+ a b
+c d
+
+zzz
+====
+0
+====
+{}
+====
+{
+    "type": "transition",
+    "text": "qq t n s\n a b\nc d\n\n",
+    "characterPosition": 0,
+    "transitions": {
+        "t": {
+            "n": {
+                "machineType": "t",
+                "machineName": "n",
+                "from": "epsilon",
+                "to": "s",
+                "keyValuePairs": {
+                    "a": "b"
+                },
+                "logicalDepth": 1
+            }
+        }
+    },
+    "keyValuePairs": {
+        "c": "d"
+    }
+}
+==========
+who
+foo
+qq t1 n1 s1
+qqq t2 n2 s2====
+1
+====
+{}
+====
+{
+    "type": "transition",
+    "text": "qq t1 n1 s1\nqqq t2 n2 s2",
+    "characterPosition": 8,
+    "transitions": {
+        "t1": {
+            "n1": {
+                "machineType": "t1",
+                "machineName": "n1",
+                "from": "epsilon",
+                "to": "s1",
+                "keyValuePairs": {},
+                "logicalDepth": 1
+            }
+        },
+        "t2": {
+            "n2": {
+                "machineType": "t2",
+                "machineName": "n2",
+                "from": "epsilon",
+                "to": "s2",
+                "keyValuePairs": {},
+                "logicalDepth": 2
+            }
+        }
+    },
+    "keyValuePairs": {}
+}
+==========

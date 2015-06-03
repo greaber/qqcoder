@@ -1,0 +1,15 @@
+format: source, logical prefix (i.e., prefix less first 'q'), machineType, machineName, newState
+
+==========
+qq a b c
+====
+q====
+a====
+b====
+c==========
+qqq   aa  bb  cc
+====
+qq====
+aa====
+bb====
+cc==========
