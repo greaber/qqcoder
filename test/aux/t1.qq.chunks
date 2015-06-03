@@ -1,0 +1,137 @@
+[
+    {
+        "type": "text",
+        "text": "\nText 1\n\n",
+        "characterPosition": 0
+    },
+    {
+        "type": "transition",
+        "text": "qq t1 n1 s1\n a b\n e f\nc d\n\n",
+        "characterPosition": 9,
+        "transitions": {
+            "t1": {
+                "n1": {
+                    "machineType": "t1",
+                    "machineName": "n1",
+                    "from": "epsilon",
+                    "to": "s1",
+                    "keyValuePairs": {
+                        "a": "b",
+                        "e": "f"
+                    },
+                    "logicalDepth": 1
+                }
+            }
+        },
+        "keyValuePairs": {
+            "c": "d"
+        }
+    },
+    {
+        "type": "transition",
+        "text": "qq t1 n1 s2\ne f\n\n",
+        "characterPosition": 36,
+        "transitions": {
+            "t1": {
+                "n1": {
+                    "machineType": "t1",
+                    "machineName": "n1",
+                    "from": "s1",
+                    "to": "s2",
+                    "keyValuePairs": {},
+                    "logicalDepth": 1
+                }
+            }
+        },
+        "keyValuePairs": {
+            "e": "f"
+        }
+    },
+    {
+        "type": "text",
+        "text": "blah\nText 2\n",
+        "characterPosition": 53
+    },
+    {
+        "type": "transition",
+        "text": "qq a b c\n\n",
+        "characterPosition": 65,
+        "transitions": {
+            "a": {
+                "b": {
+                    "machineType": "a",
+                    "machineName": "b",
+                    "from": "epsilon",
+                    "to": "c",
+                    "keyValuePairs": {},
+                    "logicalDepth": 1
+                }
+            }
+        },
+        "keyValuePairs": {}
+    },
+    {
+        "type": "text",
+        "text": "z\n\n qq a b\n\n",
+        "characterPosition": 75
+    },
+    {
+        "type": "transition",
+        "text": "qq a b f\n\n",
+        "characterPosition": 87,
+        "transitions": {
+            "a": {
+                "b": {
+                    "machineType": "a",
+                    "machineName": "b",
+                    "from": "c",
+                    "to": "f",
+                    "keyValuePairs": {},
+                    "logicalDepth": 1
+                }
+            }
+        },
+        "keyValuePairs": {}
+    },
+    {
+        "type": "transition",
+        "text": "qq a b f\n m n\n o p\nqq t1 n2 s1\n q r\n s t\nu v\n\n",
+        "characterPosition": 97,
+        "transitions": {
+            "a": {
+                "b": {
+                    "machineType": "a",
+                    "machineName": "b",
+                    "from": "f",
+                    "to": "f",
+                    "keyValuePairs": {
+                        "m": "n",
+                        "o": "p"
+                    },
+                    "logicalDepth": 1
+                }
+            },
+            "t1": {
+                "n2": {
+                    "from": "epsilon",
+                    "keyValuePairs": {
+                        "q": "r",
+                        "s": "t"
+                    },
+                    "logicalDepth": 1,
+                    "machineName": "n2",
+                    "machineType": "t1",
+                    "to": "s1"
+                }
+            }
+        },
+        "keyValuePairs": {
+            "u": "v"
+        }
+    },
+    {
+        "type": "text",
+        "text": "zzzz\n",
+        "characterPosition": 143
+    }
+]

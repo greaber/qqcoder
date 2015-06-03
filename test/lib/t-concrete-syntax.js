@@ -1,6 +1,8 @@
 'use strict'
 
-const should = require('chai').should()
+const chai = require('chai')
+const should = chai.should()
+const expect = chai.expect
 const rewire = require('rewire')
 
 const fs = require('fs')
@@ -58,14 +60,23 @@ describe('transitionLineR', () => {
 })
 
 
-describe('findTransitionChunk-good', () => {
+describe('findTransitionChunk', () => {
 
-    iterateOverChunksInFile('test/aux/findTransitionChunk-good', testCase => {
+    iterateOverChunksInFile('test/aux/findTransitionChunk', testCase => {
 
         const [source, characterPositionSource, originStatesSource, resultSource] = testCase.split('====\n')
         const characterPosition = parseInt(characterPositionSource)
         const originStates = JSON.parse(originStatesSource)
-        const chunk = cS.findTransitionChunk(source, characterPosition, originStates)
-        chunk.should.deep.equal(JSON.parse(resultSource))
+        if (/^throws/.test(resultSource)) {
+            it ('throws on syntax errors', () => {
+                should.Throw(() => {cS.findTransitionChunk(source, characterPosition, originStates)})
+            })
+        } else {
+            it ('returns the correct value', () => {
+                const chunk = cS.findTransitionChunk(source, characterPosition, originStates)
+                //console.dir(chunk, {depth: null})
+                expect(chunk).to.deep.equal(JSON.parse(resultSource))
+            })
+        }
     })
  })
