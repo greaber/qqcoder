@@ -53,6 +53,8 @@ describe('transitionLineR', () => {
 
         it(`should understand valid transition line ${testCase}`, () => {
             const match = transitionLineR.exec(a[0])
+            console.log(match)
+            console.log(a)
             match[1].should.equal(a[1])
             match.slice(2,5).should.deep.equal(a.slice(2,5))
         })

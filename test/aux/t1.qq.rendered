@@ -8,20 +8,17 @@ TRANSITION t1(n1): epsilon -> s1
     e: f
 WITH DATA
 c: d
-
 ZZZZZZZZZZAAAAAAAAAA
 TRANSITION t1(n1): s1 -> s2
     WITH DATA
 WITH DATA
 e: f
-
 ZZZZZZZZZZblah
 Text 2
 AAAAAAAAAA
 TRANSITION a(b): epsilon -> c
     WITH DATA
 WITH DATA
-
 ZZZZZZZZZZz
 
  qq a b
@@ -30,7 +27,6 @@ AAAAAAAAAA
 TRANSITION a(b): c -> f
     WITH DATA
 WITH DATA
-
 ZZZZZZZZZZAAAAAAAAAA
 TRANSITION a(b): f -> f
     WITH DATA
@@ -42,5 +38,4 @@ TRANSITION t1(n2): epsilon -> s1
     s: t
 WITH DATA
 u: v
-
 ZZZZZZZZZZzzzz
