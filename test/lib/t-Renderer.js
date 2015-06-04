@@ -25,18 +25,79 @@ describe('Renderer', () => {
 
     describe('#stringsFromChunks()', () => {
 
-        it('returns the correct value', () => {
-            const renderer = new Renderer({
+        let correctRenderer, flippedTransitionDirectionRenderer, missingMachineTypeRenderer, lessAcceptingRenderer
+
+        beforeEach(() => {
+            correctRenderer = new Renderer({
                 language: new Language({
                     machineTypes: {
-                        t1: 'epsilon s1 s2'
+                        t1: 'epsilon s1 s2, s1'
                         , a: 'epsilon c f f'
                     }
                 })
                 , chunkRenderer: Renderer.testRenderer
             })
-            const ret = renderer.stringFromChunks(correctChunksValue)
+
+            flippedTransitionDirectionRenderer = new Renderer({
+                language: new Language({
+                    machineTypes: {
+                        t1: 'epsilon s2 s1'
+                        , a: 'epsilon c f f'
+                    }
+                })
+                , chunkRenderer: Renderer.testRenderer
+            })
+
+            missingMachineTypeRenderer = new Renderer({
+                language: new Language({
+                    machineTypes: {
+                        t1: 'epsilon s1 s2, s1'
+                    }
+                })
+                , chunkRenderer: Renderer.testRenderer
+            })
+
+            lessAcceptingRenderer = new Renderer({
+                language: new Language({
+                    machineTypes: {
+                        t1: 'epsilon s1 s2 s3'
+                        , a: 'epsilon c f f'
+                    }
+                })
+                , chunkRenderer: Renderer.testRenderer
+            })
+        })
+
+
+        it('returns the correct value', () => {
+
+            const ret = correctRenderer.stringFromChunks(correctChunksValue)
             ret.should.equal(correctRenderedValue)
+        })
+
+
+        describe('reports erroneous transitions correctly: ', () => {
+            it('detects transitions not allowed by the language', () => {
+                should.Throw(() => flippedTransitionDirectionRenderer.stringFromChunks(correctChunksValue),
+                             'invalid transition in machine "n1" of type t1: epsilon->s1')
+            })
+
+            it('detects attempts to transition a machine of unknown type', () => {
+                should.Throw(() => missingMachineTypeRenderer.stringFromChunks(correctChunksValue),
+                             'attempt to transition a machine of unknown type "a"')
+            })
+
+            it('detects transitions from the wrong state', () => {
+                let chunks = _.map(correctChunksValue, _.clone)
+                chunks[6].transitions.a.b.from = "f"
+                should.Throw(() => correctRenderer.stringFromChunks(chunks),
+                             'attempt to transition machine "b" of type a from state f to state f, but machine is in state c, not f')
+            })
+        })
+
+        it('detects attempts to finish with a machine not in an accepting state', () => {
+            should.Throw(() => lessAcceptingRenderer.stringFromChunks(correctChunksValue),
+                         'attempt to finish with machine "n1" of type t1 in state s2')
         })
     })
 })
