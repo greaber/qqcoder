@@ -21,6 +21,14 @@ describe('Renderer', () => {
 
             Renderer.chunksFromString(src, concreteSyntax.findTransitionChunk).should.deep.equal(correctChunksValue)
         })
+
+        it('can make a one chunk chunk array', () => {
+            Renderer.chunksFromString('qq a b c', concreteSyntax.findTransitionChunk).length.should.equal(1)
+        })
+
+        it('can make a zero chunk chunk array', () => {
+            Renderer.chunksFromString('', concreteSyntax.findTransitionChunk).length.should.equal(0)
+        })
     })
 
     describe('#stringsFromChunks()', () => {
@@ -99,5 +107,19 @@ describe('Renderer', () => {
             should.Throw(() => lessAcceptingRenderer.stringFromChunks(correctChunksValue),
                          'attempt to finish with machine "n1" of type t1 in state s2')
         })
+
+        describe('renderFileSync', () => {
+            it('does its job', () => {
+                try {
+                    fs.unlinkSync('test/aux/t1.qq.rendered-sync')
+                } catch (e) {}
+                correctRenderer.renderFileSync({inputFilename: 'test/aux/t1.qq', outputFilename: 'test/aux/t1.qq.rendered-sync'})
+                const ourVersion = fs.readFileSync('test/aux/t1.qq.rendered-sync', {encoding: 'utf8'})
+                const correctVersion = fs.readFileSync('test/aux/t1.qq.rendered', {encoding: 'utf8'})
+                ourVersion.should.equal(correctVersion)
+
+            })
+        })
+
     })
 })

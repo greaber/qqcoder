@@ -4,7 +4,8 @@
   "description": "A generalized markup language that is easy to use on a phone, and a JavaScript API for transforming documents written in its dialects",
   "main": "qqcoder.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --compilers js:babel/register --reporter spec test/lib"
+    "test": "./node_modules/.bin/mocha --compilers js:babel/register --reporter spec test/lib",
+    "test-cov": "node ./node_modules/istanbul/lib/cli.js cover _mocha -- --compilers js:babel/register --reporter spec test/lib"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "chai": "^2.3.0",
+    "istanbul": "^0.3.14",
     "mocha": "^2.2.5",
     "rewire": "^2.3.3",
     "sinon": "^1.14.1"

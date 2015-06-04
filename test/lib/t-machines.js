@@ -73,11 +73,24 @@ describe('machineTypeFromSpec', () => {
             ;(_.assign({}, nelly1)).should.deep.equal(nelly1_expected)
         })
 
+        it('defaults name to the empty string', () => {
+            const other = new (machines.machineTypeFromSpec(tspec, 'nelly'))()
+            other.name.should.equal('')
+        })
+
         describe('#transition()', () => {
 
-            it('detects illegal transitions', () => {
+            it('detects forbidden transitions', () => {
                 nelly1.transition('q')
-                ;(() => nelly1.transition('q')).should.throw(SyntaxError)
+                ;(() => nelly1.transition('q'))
+                    .should.throw(SyntaxError,
+                                  'invalid transition in machine "nelly1" of type nelly: q->q')
+            })
+
+            it('detects transitions to non-existent states', () => {
+                ;(() => nelly1.transition('xanadu'))
+                    .should.throw(SyntaxError,
+                                  'attempt to transition machine "nelly1" of type nelly to non-existent state xanadu')
             })
         })
 
